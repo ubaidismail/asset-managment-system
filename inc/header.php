@@ -34,6 +34,9 @@
           <li class="nav-item">
             <a class="nav-link" href="/AMS/types/list.php">Types</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/AMS/item_conditions/list.php">Item Conditions</a>
+          </li>
         </ul>
       </div>
 

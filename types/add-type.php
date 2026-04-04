@@ -1,5 +1,5 @@
 <?php
-include '../db/connection.php';
+require_once '../init.php';
 include '../inc/header.php';
 
 $get_cats = 'SELECT * FROM categories';

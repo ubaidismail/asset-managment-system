@@ -1,6 +1,7 @@
 <?php
-include '../db/connection.php';
+require_once '../init.php';
 include '../inc/header.php';
+
 $success_mess = '';
 $error_mess = '';
 if(isset($_POST['submit_cat_form'])){

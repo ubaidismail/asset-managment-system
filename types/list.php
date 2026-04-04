@@ -1,5 +1,5 @@
 <?php
-include '../db/connection.php';
+require_once '../init.php';
 include '../inc/header.php';
 
 $select_type = 'SELECT types.*, c1.name as category_name FROM types left join categories c1 on types.cat_id = c1.id ';
@@ -10,7 +10,9 @@ $rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
 <!-- need to get the type and the category -->
 <div class="container">
     <div class="list-ams">
+         <div class="top-btn d-flex justify-content-end mb-3 ">
         <a href="add-type.php" class="btn btn-dark d-inline-flex justify-content-end">Add Types</a>
+        </div>
         <table class="table">
             <thead>
                 <tr>

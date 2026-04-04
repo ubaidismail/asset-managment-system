@@ -1,26 +1,30 @@
 <?php
-// include '../AMS/db/connection.php';
 
 
-// $get_cats = 'SELECT * FROM categories';
-// $query_run = mysqli_query($conn, $get_cats);
-// $rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
+$get_cats = 'SELECT * FROM categories';
+$query_run = mysqli_query($conn, $get_cats);
+$rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
 
-// $get_type = 'SELECT * FROM types';
-// $query_run_type = mysqli_query($conn, $get_type);
-// $rows_type = mysqli_fetch_all($query_run_type, MYSQLI_ASSOC);
+$get_type = 'SELECT * FROM types';
+$query_run_type = mysqli_query($conn, $get_type);
+$rows_type = mysqli_fetch_all($query_run_type, MYSQLI_ASSOC);
 
-// // get conditions
-// $get_conditions = 'SELECT * FROM item_conditions';
-// $query_run_conditions = mysqli_query($conn, $get_conditions);
-// $rows_conditions = mysqli_fetch_all($query_run_conditions, MYSQLI_ASSOC);
+// get conditions
+$get_conditions = 'SELECT * FROM item_conditions';
+$query_run_conditions = mysqli_query($conn, $get_conditions);
+$rows_conditions = mysqli_fetch_all($query_run_conditions, MYSQLI_ASSOC);
+
+// get materials
+$get_materials = 'SELECT * FROM materials';
+$query_run_materials = mysqli_query($conn, $get_materials);
+$rows_materials = mysqli_fetch_all($query_run_materials, MYSQLI_ASSOC);
 
 $success_mess = '';
 $error_mess = '';
 
 if (isset($_POST['item_submit'])) {
     $item_name = $_POST['item_name'];
-    $item_desc = $_POST['item_desc'];
+    $item_desc = $_POST['item_description'];
     $cat_id = $_POST['cat_id'];
     $type_id = $_POST['type_id'];
     $item_serial_number = $_POST['item_serial_number'];
@@ -31,6 +35,19 @@ if (isset($_POST['item_submit'])) {
     $warranty_expiry = $_POST['warranty_expiry'];
     $item_last_maintenance_date = $_POST['last_maintenance_date'];
     $item_next_maintenance_date = $_POST['next_maintenance_date'];
+    $item_material = $_POST['item_material'];
+    $item_color = $_POST['item_color'];
+    $size_width = $_POST['size_width'];
+    $size_height = $_POST['size_height'];
+    $size_depth = $_POST['size_depth'];
+    $item_weight = $_POST['item_weight'];
+    $weight_unit = $_POST['weight_unit'];
+    $item_adjustable = $_POST['item_adjustable'];
+    $item_location = $_POST['item_location'];
+    $item_status = $_POST['item_status'];
+    $item_notes = $_POST['item_notes'];
+
+
 
     $item_image = $_FILES['item_image']['name'];
     $image_tmp = $_FILES['item_image']['tmp_name'];
@@ -46,11 +63,51 @@ if (isset($_POST['item_submit'])) {
     }
 
     if (move_uploaded_file($image_tmp, $upload_path)) {
-        $insert_query = $conn->prepare('INSERT INTO items (name, item_description, type_id, category_id, image ) values (?,?,?,?,?)');
-        $insert_query->bind_param('ssiis', $item_name, $item_desc, $type_id, $cat_id, $image_name_unique);
+        $sql = 'INSERT INTO items 
+            (name, item_description, type_id, category_id, serial_number, brand, model,
+            purchase_date, purchase_price, warranty_expiry,
+            last_maintenance_date, next_maintenance_date,
+            material_id, color, size_width, size_height, size_depth, size_unit,
+            item_weight, weight_unit, is_adjustable,
+            item_location, life_cycle_status, notes, image) 
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
+        $insert_query = $conn->prepare($sql);
+
+        if (!$insert_query) {
+            die('Prepare failed: ' . $conn->error);
+        }
+        $insert_query->bind_param(
+            'ssiissssdsssisdddsdsissss',
+            $item_name, // string
+            $item_desc, // string
+            $type_id, // integer
+            $cat_id,    // integer
+            $item_serial_number, // string
+            $item_brand, //string
+            $item_model, //string
+            $item_purchased_date, //string
+            $item_purchase_price, //double
+            $warranty_expiry, //string
+            $item_last_maintenance_date,    //string
+            $item_next_maintenance_date, //string
+            $material_id, //integer
+            $item_color, //string
+            $size_width,    //double
+            $size_height,   //double
+            $size_depth,  //double
+            $size_unit, //string
+            $item_weight, //double
+            $weight_unit, //string
+            $is_adjustable, //integer
+            $item_location, //string
+            $life_cycle_status, //string
+            $item_notes, //string
+            $image_name_unique //string
+        );
         if ($insert_query->execute()) {
-            $success_mess = 'Item Inserted';
+            header('Location: /AMS/index.php');
+            exit();
         } else {
             $error_mess = 'Error:' . $insert_query->error;
         }
@@ -72,8 +129,8 @@ if (isset($_POST['item_submit'])) {
                     <form method="POST" action="" enctype="multipart/form-data">
 
                         <div class="form-group">
-                            <label for="item_name">Item Category</label>
-                            <select class="form-select form-select-sm" name="cat_id" id="cat_id" onchange="filterTypes()">
+                            <label for="cat_id">Item Category</label>
+                            <select class="form-select" name="cat_id" id="cat_id" onchange="filterTypes()">
                                 <option value="">___Select Category___</option>
                                 <?php
                                 if (!empty($rows)) {
@@ -82,7 +139,7 @@ if (isset($_POST['item_submit'])) {
                                         $id = $row['id'];
                                         $name = $row['name'];
                                 ?>
-                                        <!-- <option value="<?php echo $id; ?>"><?php echo $name; ?></option> -->
+                                        <option value="<?php echo $id; ?>"><?php echo $name; ?></option>
                                 <?php
                                     }
                                 }
@@ -92,9 +149,9 @@ if (isset($_POST['item_submit'])) {
 
 
                         <div class="form-group">
-                            <label for="item_name">Item Type</label>
-                            <select class="form-select form-select-sm" name="type_id" id="type_id">
-                                <option value="">___Select Item Type___</option>
+                            <label for="type_id">Item Type</label>
+                            <select class="form-select" name="type_id" id="type_id">
+                                <option value="">___Select Type___</option>
                                 <?php
                                 if (!empty($rows_type)) {
                                     $count = 0;
@@ -102,7 +159,7 @@ if (isset($_POST['item_submit'])) {
                                         $id = $row['id'];
                                         $name = $row['name'];
                                 ?>
-                                        <!-- <option value="<?php echo $id; ?>" data-cat="<?= $row['cat_id'] ?>" style="display:none;"><?php echo $name; ?></option> -->
+                                        <option value="<?php echo $id; ?>" data-cat="<?= $row['cat_id'] ?>" style="display:none;"><?php echo $name; ?></option>
                                 <?php
                                     }
                                 }
@@ -114,13 +171,31 @@ if (isset($_POST['item_submit'])) {
                             <label for="item_material">Item Material</label>
                             <select class="form-select" id="item_material" name="item_material">
                                 <option value="">___Select Material___</option>
-                                <option value="wood">Wood</option>
-                                <option value="metal">Metal</option>
-                                <option value="plastic">Plastic</option>
-                                <option value="other">Other</option>
+                                <?php
+                                if (!empty($rows_materials)) {
+                                    foreach ($rows_materials as $row) {
+                                        $id = $row['id'];
+                                        $name = $row['name'];
+                                ?>
+
+                                        <option value="<?php echo $id; ?>"><?php echo ucfirst($name); ?></option>
+                                <?php
+                                    }
+                                }
+                                ?>
                             </select>
 
-                            <input type="text" id="material_other" name="material_other" placeholder="Specify material" style="display:none;">
+                            <input type="text" class="form-control mt-2" id="material_other" name="material_other" placeholder="Specify material" style="display:none;">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="item_name">Item Name</label>
+                            <input type="text" class="form-control" id="item_name" name="item_name" placeholder="Enter item name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="item_description">Item Description</label>
+                            <input type="text" class="form-control" id="item_description" name="item_description" placeholder="Enter item description">
                         </div>
 
                         <div class="form-group">
@@ -187,7 +262,7 @@ if (isset($_POST['item_submit'])) {
 
                         <div class="form-group">
                             <label for="item_serial_number">Item Serial Number</label>
-                            <input type="number" class="form-control" id="item_serial_number" name="item_serial_number" placeholder="E420456789">
+                            <input type="text" class="form-control" id="item_serial_number" name="item_serial_number" placeholder="E420456789">
                         </div>
                         <div class="form-group">
                             <label for="item_brand">Item Brand</label>
@@ -295,4 +370,15 @@ if (isset($_POST['item_submit'])) {
         document.getElementById('type_id').value = '';
 
     }
+
+    const itemMaterialSelect = document.getElementById('item_material');
+    const materialOtherInput = document.getElementById('material_other');
+    itemMaterialSelect.addEventListener('change', function() {
+        if (this.value === 'other') {
+            materialOtherInput.style.display = 'block';
+        } else {
+            materialOtherInput.style.display = 'none';
+            materialOtherInput.value = '';
+        }
+    });
 </script>

@@ -1,5 +1,5 @@
 <?php
-include '../db/connection.php';
+require_once '../init.php';
 include '../inc/header.php';
 
 $success_mess = '';
@@ -22,26 +22,26 @@ if (isset($_POST['submit_condition_form'])) {
 
 <div class="container">
     <div class="cat-add-form">
-         
-    <form method="POST" action="">
-    <div class="form-group">
-        <label for="condition_name">Condition Name</label>
-        <input type="text" class="form-control" id="condition_name" name="condition_name" placeholder="Enter Condition name">
-    </div>
-    <div class="form-group">
-        <label for="condition_description">Condition Description</label>
-        <input type="text" class="form-control" id="condition_description" name="condition_description" placeholder="Enter Condition description">
-    </div>
 
-    <button type="submit" name="submit_condition_form" class="btn btn-primary mt-4">Submit</button>
-   
-        <?php if (!empty($success_mess)): ?>
-            <span class="alert alert-success d-block"><?php echo $success_mess; ?></span>
-        <?php endif; ?>
+        <form method="POST" action="">
+            <div class="form-group">
+                <label for="condition_name">Condition Name</label>
+                <input type="text" class="form-control" id="condition_name" name="condition_name" placeholder="Enter Condition name">
+            </div>
+            <div class="form-group">
+                <label for="condition_description">Condition Description</label>
+                <input type="text" class="form-control" id="condition_description" name="condition_description" placeholder="Enter Condition description">
+            </div>
 
-        <?php if (!empty($error_mess)): ?>
-            <span class="alert alert-danger d-block"><?php echo $error_mess; ?></span>
-        <?php endif; ?>
-    </form>
+            <button type="submit" name="submit_condition_form" class="btn btn-primary mt-4">Submit</button>
+
+            <?php if (!empty($success_mess)): ?>
+                <span class="alert alert-success d-block"><?php echo $success_mess; ?></span>
+            <?php endif; ?>
+
+            <?php if (!empty($error_mess)): ?>
+                <span class="alert alert-danger d-block"><?php echo $error_mess; ?></span>
+            <?php endif; ?>
+        </form>
     </div>
 </div>

@@ -2,9 +2,8 @@
 require_once '../init.php';
 include '../inc/header.php';
 
-$get_cats = 'SELECT * FROM categories';
-$query_run = mysqli_query($conn, $get_cats);
-$rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
+
+$rows = Categories::getAll();
 
 $success_mess = '';
 $error_mess = '';

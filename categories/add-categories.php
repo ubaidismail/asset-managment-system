@@ -6,9 +6,10 @@ $success_mess = '';
 $error_mess = '';
 if(isset($_POST['submit_cat_form'])){
     $name = $_POST['cat_name'];
-    
-    $insert_query = $conn->prepare("INSERT INTO categories (name) values (?)");
-    $insert_query->bind_param('s', $name);
+    $cat_desc = $_POST['cat_desc'];
+
+    $insert_query = $conn->prepare("INSERT INTO categories (name, description) values (?, ?)");
+    $insert_query->bind_param('ss', $name, $desc);
     if($insert_query->execute()){
         $success_mess = 'Category Inserted';
     }else{
@@ -25,6 +26,10 @@ if(isset($_POST['submit_cat_form'])){
     <div class="form-group">
         <label for="cat_name">Category Name</label>
         <input type="text" class="form-control" id="cat_name" name="cat_name" placeholder="Enter Category name">
+    </div>
+    <div class="form-group">
+        <label for="cat_desc">Category Description</label>
+        <input type="text" class="form-control" id="cat_desc" name="cat_desc" placeholder="Enter Category description">
     </div>
 
     <button type="submit" name="submit_cat_form" class="btn btn-primary mt-4">Submit</button>

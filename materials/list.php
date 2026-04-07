@@ -1,10 +1,25 @@
 <?php
 require_once '../init.php';
-include '../inc/header.php';
 
-$select_type = 'SELECT * FROM materials';
-$query_run = mysqli_query($conn, $select_type);
+
+$get_materials = Materials::getAll();
+
+$get_materials = 'SELECT materials.*, t1.name as type_name FROM materials left join types t1 on materials.type_id = t1.id where materials.status = 1 order by materials.id desc';
+$query_run = mysqli_query($conn, $get_materials);
 $rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
+
+if (isset($_GET['material_del'])) {
+    $material_id = $_GET['material_del'];
+    $delete_sql = 'Update materials set status = 0 where id = ' . $material_id;
+    if (mysqli_query($conn, $delete_sql)) {
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    } else {
+        echo 'Error deleting materials: ' . mysqli_error($conn);
+    }
+}
+
+include '../inc/header.php';
 
 ?>
 <!-- need to get the type and the category -->
@@ -17,7 +32,8 @@ $rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
             <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Name</th>
+                    <th scope="col">Material</th>
+                    <th scope="col">Type</th>
                     <th scope="col">Action</th>
                 </tr>
             </thead>
@@ -25,13 +41,14 @@ $rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
                 <?php
                 if (!empty($rows)) {
                     $count = 0;
-                    foreach ($rows as $row) {
+                    foreach ($rows as $material) {
                         $count++;
                 ?>
                         <tr>
                             <td><?php echo $count; ?> </td>
-                            <td><?php echo $row['name']; ?> </td>
-                            <td><a href="#">Edit</a> - <a href="#">Delete</a></td>
+                            <td><?php echo $material['name']; ?> </td>
+                            <td><?php echo $material['type_name']; ?> </td>
+                            <td><a href="edit-material.php?id=<?php echo $material['id']; ?>">Edit</a> - <a href="<?php echo $_SERVER['PHP_SELF']?>?material_del=<?php echo $material['id']; ?>">Delete</a></td>
                         </tr>
                 <?php
                     }
@@ -41,3 +58,8 @@ $rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
         </table>
     </div>
 </div>
+
+
+<?php
+include '../inc/footer.php';
+?>

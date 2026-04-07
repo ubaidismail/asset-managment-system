@@ -1,12 +1,22 @@
 <?php
 require_once '../init.php';
+
+
+
+$rows = Categories::getAll();
+
+if (isset($_GET['cat_del'])) {
+    $cat_id = $_GET['cat_del'];
+    $delete_sql = Categories::category_delete($cat_id);
+    if ($delete_sql) {
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    } else {
+        echo 'Error deleting category: ' . mysqli_error($conn);
+    }
+}
+
 include '../inc/header.php';
-
-
-$select_cat = "SELECT * FROM categories";
-$query_run = mysqli_query($conn, $select_cat);
-$rows  = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
-
 ?>
 
 <div class="container">
@@ -32,13 +42,29 @@ $rows  = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
                         <tr>
                             <td><?php echo $count; ?> </td>
                             <td><?php echo $row['name']; ?> </td>
-                            <td><a href="#">Edit</a> - <a href="#">Delete</a></td>
-                        </tr>
-                <?php
+                            <td><a href="edit-category.php?id=<?php echo $row['id']; ?>">Edit</a> - <a href="<?php echo $_SERVER['PHP_SELF']; ?>?cat_del=<?php echo $row['id']; ?>">Delete</a></td>
+                        </tr
+                            <?php
+                        }
                     }
-                }
-                ?>
-            </tbody>
+                            ?>
+                            </tbody>
         </table>
     </div>
 </div>
+
+<script>
+    // confirmation before delete
+
+    document.querySelectorAll('a[href*="cat_del"]').forEach(function(element) {
+        element.addEventListener('click', function(event) {
+            if (!confirm('Are you sure you want to delete this category?')) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+
+<?php
+include '../inc/footer.php';
+?>

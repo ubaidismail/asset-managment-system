@@ -1,28 +1,50 @@
 <?php
 
+$rows_cat = Categories::getAll();
 
-$get_cats = 'SELECT * FROM categories';
-$query_run = mysqli_query($conn, $get_cats);
-$rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
+$rows_type = Types::getAll();
 
-$get_type = 'SELECT * FROM types';
-$query_run_type = mysqli_query($conn, $get_type);
-$rows_type = mysqli_fetch_all($query_run_type, MYSQLI_ASSOC);
+$rows_conditions =  ItemConditions::getAll();
 
-// get conditions
-$get_conditions = 'SELECT * FROM item_conditions';
-$query_run_conditions = mysqli_query($conn, $get_conditions);
-$rows_conditions = mysqli_fetch_all($query_run_conditions, MYSQLI_ASSOC);
+$rows_materials = Materials::getAll();
 
-// get materials
-$get_materials = 'SELECT * FROM materials';
-$query_run_materials = mysqli_query($conn, $get_materials);
-$rows_materials = mysqli_fetch_all($query_run_materials, MYSQLI_ASSOC);
+$rows_size_units = SizeUnits::getAll();
+
+$rows_weight_unit = WeightUnits::getAll();
 
 $success_mess = '';
 $error_mess = '';
 
+function generate_asset_code($conn, $category_name, $cat_id)
+{
+    // 1. Create the prefix dynamically (e.g., 'FUR', 'LAP', 'OFF')
+    $prefix = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $category_name), 0, 3));
+
+    // 2. Create the SEARCH PATTERN (e.g., 'EMS-FUR-%')
+    // The % is a SQL wildcard that means "anything after this"
+    $search_pattern = "EMS-" . $prefix . "-%";
+
+    // 3. Use a Prepared Statement with the dynamic pattern
+    $stmt = $conn->prepare("SELECT asset_code FROM items WHERE asset_code LIKE ? ORDER BY asset_code DESC LIMIT 1");
+    $stmt->bind_param('s', $search_pattern);
+    $stmt->execute();
+    $result = $stmt->get_result()->fetch_assoc();
+
+    if ($result) {
+        // 4. If we found one, extract the number and increment
+        $last_number = (int)substr(trim($result['asset_code']), -4);
+        $next_number = $last_number + 1;
+    } else {
+        // 5. If it's a brand new category prefix, start at 1
+        $next_number = 1;
+    }
+
+    // 6. Final Assembly
+    $number = str_pad($next_number, 4, '0', STR_PAD_LEFT);
+    return 'EMS-' . $prefix . '-' . $number;
+}
 if (isset($_POST['item_submit'])) {
+
     $item_name = $_POST['item_name'];
     $item_desc = $_POST['item_description'];
     $cat_id = $_POST['cat_id'];
@@ -30,23 +52,18 @@ if (isset($_POST['item_submit'])) {
     $item_serial_number = $_POST['item_serial_number'];
     $item_brand = $_POST['item_brand'];
     $item_model = $_POST['item_model'];
-    $item_purchased_date = $_POST['item_purchased_date'];
     $item_purchase_price = $_POST['item_purchase_price'];
-    $warranty_expiry = $_POST['warranty_expiry'];
-    $item_last_maintenance_date = $_POST['last_maintenance_date'];
-    $item_next_maintenance_date = $_POST['next_maintenance_date'];
-    $item_material = $_POST['item_material'];
+    $material_id = $_POST['item_material'];
     $item_color = $_POST['item_color'];
     $size_width = $_POST['size_width'];
     $size_height = $_POST['size_height'];
     $size_depth = $_POST['size_depth'];
+    $size_unit = $_POST['size_unit_id'];
     $item_weight = $_POST['item_weight'];
     $weight_unit = $_POST['weight_unit'];
-    $item_adjustable = $_POST['item_adjustable'];
+    $is_adjustable = $_POST['item_adjustable'];
     $item_location = $_POST['item_location'];
-    $item_status = $_POST['item_status'];
     $item_notes = $_POST['item_notes'];
-
 
 
     $item_image = $_FILES['item_image']['name'];
@@ -58,59 +75,70 @@ if (isset($_POST['item_submit'])) {
     $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/AMS/uploads/';
     $upload_path = $upload_dir . $image_name_unique;
 
+    // Get category name for asset code generation
+    $category_name = '';
+    foreach ($rows_cat as $cat) {
+        if ($cat['id'] == $cat_id) {
+            $category_name = $cat['name'];
+            break;
+        }
+    }
+
+    $asset_code = generate_asset_code($conn, $category_name, $cat_id);
+
+
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0777, true);
     }
+    move_uploaded_file($image_tmp, $upload_path);
 
-    if (move_uploaded_file($image_tmp, $upload_path)) {
+    try {
         $sql = 'INSERT INTO items 
-            (name, item_description, type_id, category_id, serial_number, brand, model,
-            purchase_date, purchase_price, warranty_expiry,
-            last_maintenance_date, next_maintenance_date,
+            (name, item_description, type_id, category_id, serial_number, brand, model, purchase_price,
             material_id, color, size_width, size_height, size_depth, size_unit,
             item_weight, weight_unit, is_adjustable,
-            item_location, life_cycle_status, notes, image) 
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+            item_location, notes, image,asset_code) 
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'; //21
 
         $insert_query = $conn->prepare($sql);
 
         if (!$insert_query) {
             die('Prepare failed: ' . $conn->error);
         }
+
         $insert_query->bind_param(
-            'ssiissssdsssisdddsdsissss',
-            $item_name, // string
-            $item_desc, // string
-            $type_id, // integer
-            $cat_id,    // integer
-            $item_serial_number, // string
-            $item_brand, //string
-            $item_model, //string
-            $item_purchased_date, //string
-            $item_purchase_price, //double
-            $warranty_expiry, //string
-            $item_last_maintenance_date,    //string
-            $item_next_maintenance_date, //string
-            $material_id, //integer
-            $item_color, //string
-            $size_width,    //double
-            $size_height,   //double
-            $size_depth,  //double
-            $size_unit, //string
-            $item_weight, //double
-            $weight_unit, //string
-            $is_adjustable, //integer
-            $item_location, //string
-            $life_cycle_status, //string
-            $item_notes, //string
-            $image_name_unique //string
+            'ssiisssdisdddidiissss',
+            $item_name,
+            $item_desc,
+            $type_id,
+            $cat_id,
+            $item_serial_number,
+            $item_brand,
+            $item_model,
+            $item_purchase_price, // d
+            $material_id,
+            $item_color,
+            $size_width,          // d
+            $size_height,         // d
+            $size_depth,          // d
+            $size_unit,
+            $item_weight,         // d
+            $weight_unit,
+            $is_adjustable,
+            $item_location,
+            $item_notes,
+            $image_name_unique,
+            $asset_code
         );
+
         if ($insert_query->execute()) {
             header('Location: /AMS/index.php');
             exit();
         } else {
             $error_mess = 'Error:' . $insert_query->error;
         }
+    } catch (\Throwable $th) {
+        $error_mess = 'Error:' . $th->getMessage();
     }
 }
 
@@ -133,9 +161,9 @@ if (isset($_POST['item_submit'])) {
                             <select class="form-select" name="cat_id" id="cat_id" onchange="filterTypes()">
                                 <option value="">___Select Category___</option>
                                 <?php
-                                if (!empty($rows)) {
+                                if (!empty($rows_cat)) {
                                     $count = 0;
-                                    foreach ($rows as $row) {
+                                    foreach ($rows_cat as $row) {
                                         $id = $row['id'];
                                         $name = $row['name'];
                                 ?>
@@ -150,7 +178,7 @@ if (isset($_POST['item_submit'])) {
 
                         <div class="form-group">
                             <label for="type_id">Item Type</label>
-                            <select class="form-select" name="type_id" id="type_id">
+                            <select class="form-select" name="type_id" id="type_id" onchange="filterMaterials()">
                                 <option value="">___Select Type___</option>
                                 <?php
                                 if (!empty($rows_type)) {
@@ -176,9 +204,10 @@ if (isset($_POST['item_submit'])) {
                                     foreach ($rows_materials as $row) {
                                         $id = $row['id'];
                                         $name = $row['name'];
+                                        $type_id = $row['type_id'];
                                 ?>
 
-                                        <option value="<?php echo $id; ?>"><?php echo ucfirst($name); ?></option>
+                                        <option value="<?php echo $id; ?>" data-type="<?= $type_id ?>" style="display:none;"><?php echo ucfirst($name); ?> </option>
                                 <?php
                                     }
                                 }
@@ -203,7 +232,7 @@ if (isset($_POST['item_submit'])) {
                             <input type="color" class="form-control form-control-color" id="item_color" name="item_color" placeholder="black, white, red, etc.">
                         </div>
 
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <label>Item Size (cm)</label>
                             <div class="row">
                                 <div class="col-md-4">
@@ -223,11 +252,61 @@ if (isset($_POST['item_submit'])) {
                                 </div>
                             </div>
                             <small class="form-text text-muted">All dimensions in centimeters. Leave blank if not applicable.</small>
+                        </div> -->
+
+                        <div class="form-group">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="mb-0">Item Size</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <a href="<?php echo URL_ROOT ?>/units/size-unit/add-size-unit.php"><small>Add Unit</small></a>
+                                    <small class="text-muted">Unit</small>
+                                    <select class="form-select form-select-sm" style="width:140px;" name="size_unit_id" id="unit_select" onchange="updateSizeLabels()">
+                                        <?php foreach ($rows_size_units as $unit): ?>
+                                            <option value="<?= $unit['id'] ?>" data-symbol="<?= htmlspecialchars($unit['symbol']) ?>">
+                                                <?= htmlspecialchars($unit['name']) ?> (<?= htmlspecialchars($unit['symbol']) ?>)
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="size_width" placeholder="0" min="0" step="0.1">
+                                        <span class="input-group-text" id="lbl_w">cm</span>
+                                    </div>
+                                    <small class="text-muted text-center d-block mt-1">Width</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="size_height" placeholder="0" min="0" step="0.1">
+                                        <span class="input-group-text" id="lbl_h">cm</span>
+                                    </div>
+                                    <small class="text-muted text-center d-block mt-1">Height</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="size_depth" placeholder="0" min="0" step="0.1">
+                                        <span class="input-group-text" id="lbl_d">cm</span>
+                                    </div>
+                                    <small class="text-muted text-center d-block mt-1">Depth</small>
+                                </div>
+                            </div>
+                            <small class="text-muted">Leave blank if not applicable.</small>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="item_weight" class="form-label">Item Weight</label>
 
+
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="item_weight" class="form-label">Item Weight</label>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <a href="<?php echo URL_ROOT ?>/units/weight-unit/add-weight-unit.php"><small>Add Unit</small></a>
+                                </div>
+                            </div>
                             <div class="input-group">
                                 <input
                                     type="number"
@@ -239,15 +318,20 @@ if (isset($_POST['item_submit'])) {
                                     min="0">
 
                                 <span class="input-group-text p-0">
+
                                     <select
                                         class="form-select border-0"
                                         id="weight_unit"
                                         name="weight_unit">
-                                        <option value="kg">KG</option>
-                                        <option value="g">Gram</option>
-                                        <option value="lb">LB</option>
+                                        <?php foreach ($rows_weight_unit as $unit): ?>
+                                            <option value="<?= $unit['id'] ?>" data-symbol="<?= htmlspecialchars($unit['symbol']) ?>">
+                                                <?= htmlspecialchars($unit['name']) ?> (<?= htmlspecialchars($unit['symbol']) ?>)
+                                            </option>
+                                        <?php endforeach; ?>
                                     </select>
+
                                 </span>
+
                             </div>
                         </div>
 
@@ -272,20 +356,20 @@ if (isset($_POST['item_submit'])) {
                             <label for="item_model">Item Model</label>
                             <input type="text" class="form-control" id="item_model" name="item_model" placeholder="Enter item model">
                         </div>
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <label for="item_purchased_date">Item Puchased Date</label>
                             <input type="date" class="form-control" id="item_purchased_date" name="item_purchased_date">
-                        </div>
+                        </div> -->
 
                         <div class="form-group">
                             <label for="item_purchase_price">Item Puchased Price</label>
                             <input type="number" step="0.01" min="0" class="form-control" id="item_purchase_price" name="item_purchase_price" placeholder="e.g. 1500.00">
                         </div>
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <label for="warranty_expiry">Warranty Expiry</label>
                             <input type="date" class="form-control" id="warranty_expiry" name="warranty_expiry">
-                        </div>
-                        <div class="form-group">
+                        </div> -->
+                        <!-- <div class="form-group">
                             <label for="item_name">Item Condition</label>
                             <select class="form-select" aria-label="Default select example">
                                 <option selected>___Select Condition___</option>
@@ -293,23 +377,23 @@ if (isset($_POST['item_submit'])) {
                                     <option value="<?php echo $condition['id']; ?>"><?php echo $condition['name']; ?></option>
                                 <?php endforeach; ?>
                             </select>
-                        </div>
-
+                        </div> -->
+                        <!-- 
                         <div class="form-group">
                             <label for="last_maintenance_date">Item Last Maintenance Date</label>
                             <input type="date" class="form-control" id="last_maintenance_date" name="last_maintenance_date">
-                        </div>
+                        </div> -->
 
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <label for="next_maintenance_date">Item Next Maintenance Date</label>
                             <input type="date" class="form-control" id="next_maintenance_date" name="next_maintenance_date">
-                        </div>
+                        </div> -->
 
                         <div class="form-group">
                             <label for="item_location">Item Location</label>
                             <input type="text" class="form-control" id="item_location" name="item_location" placeholder="Enter item location">
                         </div>
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <label for="item_status">Lifecycle status</label>
                             <select name="item_status" id="item_status" class="form-control">
                                 <option value="">___Select___</option>
@@ -319,7 +403,7 @@ if (isset($_POST['item_submit'])) {
                                 <option value="decommissioned">Decommissioned</option>
 
                             </select>
-                        </div>
+                        </div> -->
 
                         <div class="form-group">
                             <label for="item_notes">Notes</label>
@@ -355,11 +439,12 @@ if (isset($_POST['item_submit'])) {
 <script>
     function filterTypes() {
         const cat_id = document.getElementById('cat_id').value;
-        const options = document.querySelectorAll('#type_id option');
+        const typeOptions = document.querySelectorAll('#type_id option');
 
-        options.forEach(option => {
+        // filter types by category
+        typeOptions.forEach(option => {
             if (option.value === '') {
-                option.style.display = 'block'; // always show placeholder
+                option.style.display = 'block';
             } else if (option.dataset.cat === cat_id) {
                 option.style.display = 'block';
             } else {
@@ -367,10 +452,38 @@ if (isset($_POST['item_submit'])) {
             }
         });
 
+        // reset type and material dropdowns
         document.getElementById('type_id').value = '';
+        document.getElementById('material_id').value = '';
 
+        // hide all material options and the material field
+        document.querySelectorAll('#material_id option').forEach(option => {
+            if (option.value !== '') option.style.display = 'none';
+        });
+        // document.getElementById('material_field').style.display = 'none';
     }
 
+    function filterMaterials() {
+        const type_id = document.getElementById('type_id').value;
+        const materialOptions = document.querySelectorAll('#item_material option');
+        let hasVisible = false;
+
+        materialOptions.forEach(option => {
+            if (option.value === '') {
+                option.style.display = 'block';
+            } else if (option.dataset.type === type_id) {
+                option.style.display = 'block';
+                hasVisible = true;
+            } else {
+                option.style.display = 'none';
+            }
+        });
+
+        document.getElementById('item_material').value = '';
+
+        // only show material field if selected type has materials
+        // document.getElementById('material_field').style.display = hasVisible ? 'block' : 'none';
+    }
     const itemMaterialSelect = document.getElementById('item_material');
     const materialOtherInput = document.getElementById('material_other');
     itemMaterialSelect.addEventListener('change', function() {
@@ -381,4 +494,12 @@ if (isset($_POST['item_submit'])) {
             materialOtherInput.value = '';
         }
     });
+
+    function updateSizeLabels() {
+        const sel = document.getElementById('unit_select');
+        const symbol = sel.options[sel.selectedIndex].dataset.symbol;
+        document.getElementById('lbl_w').textContent = symbol;
+        document.getElementById('lbl_h').textContent = symbol;
+        document.getElementById('lbl_d').textContent = symbol;
+    }
 </script>

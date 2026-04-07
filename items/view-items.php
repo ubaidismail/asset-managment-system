@@ -12,12 +12,16 @@ $sql = "SELECT i.*,
         c.name AS category_name, 
         t.name AS type_name,
         m.name AS material_name,
-        ic.name AS condition_name
+        ic.name AS condition_name,
+        su.symbol AS size_unit,
+        wu.symbol AS weight_unit
         FROM items i
         LEFT JOIN categories c ON i.category_id = c.id
         LEFT JOIN types t ON i.type_id = t.id
         LEFT JOIN materials m ON i.material_id = m.id
         LEFT JOIN item_conditions ic ON i.item_condition = ic.id
+        LEFT JOIN size_units su ON i.size_unit = su.id
+        LEFT JOIN weight_units wu ON i.weight_unit = wu.id
         WHERE i.id = ?";
 
 $stmt = $conn->prepare($sql);
@@ -38,49 +42,78 @@ if (!$item) {
     <div class="container py-4">
 
         <!-- Image -->
-        <?php if (!empty($item['image'])): ?>
-            <div class="text-center mb-4">
-                <img src="/AMS/uploads/<?= htmlspecialchars($item['image']) ?>"
-                    class="img-fluid rounded" style="max-height: 250px;">
-            </div>
-        <?php endif; ?>
+
 
         <!-- Basic Info -->
         <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Basic Information</h6>
-        <div class="row g-3 mb-4">
-            <div class="col-md-6">
-                <small class="text-muted d-block">Item Name</small>
-                <span><?= htmlspecialchars($item['name']) ?></span>
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <div class="row g-3 mb-4 ">
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Item Name</small>
+                        <span><?= htmlspecialchars($item['name']) ?></span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Description</small>
+                        <span><?= htmlspecialchars($item['item_description'] ?? '—') ?></span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Category</small>
+                        <span><?= htmlspecialchars($item['category_name'] ?? '—') ?></span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Type</small>
+                        <span><?= htmlspecialchars($item['type_name'] ?? '—') ?></span>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-6">
-                <small class="text-muted d-block">Description</small>
-                <span><?= htmlspecialchars($item['item_description'] ?? '—') ?></span>
+            <div class="col-md-4">
+                <div class="row g-3 mb-4">
+
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Serial Number</small>
+                        <span><?= htmlspecialchars($item['serial_number'] ?? '—') ?></span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Brand</small>
+                        <span><?= htmlspecialchars($item['brand'] ?? '—') ?></span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Model</small>
+                        <span><?= htmlspecialchars($item['model'] ?? '—') ?></span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Condition</small>
+                        <span><?= htmlspecialchars($item['condition_name'] ?? '—') ?></span>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-6">
-                <small class="text-muted d-block">Category</small>
-                <span><?= htmlspecialchars($item['category_name'] ?? '—') ?></span>
-            </div>
-            <div class="col-md-6">
-                <small class="text-muted d-block">Type</small>
-                <span><?= htmlspecialchars($item['type_name'] ?? '—') ?></span>
-            </div>
-            <div class="col-md-6">
-                <small class="text-muted d-block">Serial Number</small>
-                <span><?= htmlspecialchars($item['serial_number'] ?? '—') ?></span>
-            </div>
-            <div class="col-md-6">
-                <small class="text-muted d-block">Brand</small>
-                <span><?= htmlspecialchars($item['brand'] ?? '—') ?></span>
-            </div>
-            <div class="col-md-6">
-                <small class="text-muted d-block">Model</small>
-                <span><?= htmlspecialchars($item['model'] ?? '—') ?></span>
-            </div>
-            <div class="col-md-6">
-                <small class="text-muted d-block">Condition</small>
-                <span><?= htmlspecialchars($item['condition_name'] ?? '—') ?></span>
+            <div class="col-md-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <?php if (!empty($item['image'])): ?>
+                            <div class="text-center mb-4">
+                                <img src="/AMS/uploads/<?= htmlspecialchars($item['image']) ?>"
+                                    class="img-fluid rounded" id="asset_img" style="max-height: 250px;"">
+                            </div>
+                            <div id="myModal" class="asset_image_modal">
+
+                                <!-- The Close Button -->
+                                <span class="close">&times;</span>
+
+                                <!-- Modal Content (The Image) -->
+                                <img class="asset-image-modal-content" id="img01">
+
+                                <!-- Modal Caption (Image Text) -->
+                                <div id="caption"></div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
         </div>
+
 
         <!-- Physical Properties -->
         <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Physical Properties</h6>
@@ -131,41 +164,41 @@ if (!$item) {
         <!-- Purchase Info -->
         <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Purchase Information</h6>
         <div class="row g-3 mb-4">
-            <div class="col-md-6">
+            <!-- <div class="col-md-6">
                 <small class="text-muted d-block">Purchase Date</small>
                 <span><?= !empty($item['purchase_date']) ? date('d M Y', strtotime($item['purchase_date'])) : '—' ?></span>
-            </div>
+            </div> -->
             <div class="col-md-6">
                 <small class="text-muted d-block">Purchase Price</small>
-                <span><?= !empty($item['purchase_price']) ? number_format($item['purchase_price'], 2) : '—' ?></span>
+                <span><?= !empty($item['purchase_price']) ?  'QAR ' . number_format($item['purchase_price'], 2) : '—' ?></span>
             </div>
-            <div class="col-md-6">
+            <!-- <div class="col-md-6">
                 <small class="text-muted d-block">Warranty Expiry</small>
                 <span><?= !empty($item['warranty_expiry']) ? date('d M Y', strtotime($item['warranty_expiry'])) : '—' ?></span>
-            </div>
+            </div> -->
         </div>
 
         <!-- Maintenance -->
-        <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Maintenance</h6>
+        <!-- <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Maintenance</h6> -->
         <div class="row g-3 mb-4">
-            <div class="col-md-6">
+            <!-- <div class="col-md-6">
                 <small class="text-muted d-block">Last Maintenance</small>
                 <span><?= !empty($item['last_maintenance_date']) ? date('d M Y', strtotime($item['last_maintenance_date'])) : '—' ?></span>
             </div>
             <div class="col-md-6">
                 <small class="text-muted d-block">Next Maintenance</small>
                 <span><?= !empty($item['next_maintenance_date']) ? date('d M Y', strtotime($item['next_maintenance_date'])) : '—' ?></span>
-            </div>
+            </div> -->
         </div>
 
         <!-- Status & Location -->
-        <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Status & Location</h6>
+        <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Comments & Location</h6>
         <div class="row g-3 mb-4">
             <div class="col-md-6">
                 <small class="text-muted d-block">Location</small>
                 <span><?= htmlspecialchars($item['item_location'] ?? '—') ?></span>
             </div>
-            <div class="col-md-6">
+            <!-- <div class="col-md-6">
                 <small class="text-muted d-block">Lifecycle Status</small>
                 <?php
                 $status_colors = [
@@ -178,7 +211,7 @@ if (!$item) {
                 $badge  = $status_colors[$status] ?? 'secondary';
                 ?>
                 <span class="badge bg-<?= $badge ?>"><?= ucfirst($status) ?: '—' ?></span>
-            </div>
+            </div> -->
             <div class="col-md-12">
                 <small class="text-muted d-block">Notes</small>
                 <span><?= htmlspecialchars($item['notes'] ?? '—') ?></span>
@@ -203,3 +236,27 @@ if (!$item) {
 
     </div>
 </div>
+
+<script>
+    var modal = document.getElementById("myModal");
+
+    // Get the image and insert it inside the modal - use its "alt" text as a caption
+    var img = document.getElementById("asset_img");
+    var modalImg = document.getElementById("img01");
+    img.onclick = function() {
+        modal.style.display = "block";
+        modalImg.src = this.src;
+    }
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+</script>
+
+<?php
+include '../inc/footer.php';
+?>

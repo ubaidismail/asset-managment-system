@@ -3,7 +3,7 @@
 class Materials {
     public static function getAll() {
         global $conn;
-        $sql = "SELECT DISTINCT name FROM materials WHERE status = 1";
+        $sql = "SELECT *FROM materials WHERE status = 1 group by name order by name asc";
         $result = mysqli_query($conn, $sql);
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }

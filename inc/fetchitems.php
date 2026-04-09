@@ -6,7 +6,7 @@ $category_id = isset($_POST['category_id']) ? $_POST['category_id'] : '';
 $type_id = isset($_POST['type_id']) ? $_POST['type_id'] : '';
 $material_id = isset($_POST['material_id']) ? $_POST['material_id'] : '';
 $brand = isset($_POST['brand']) ? $_POST['brand'] : '';
-$item_location = isset($_POST['item_location']) ? $_POST['item_location'] : '';
+// $item_location = isset($_POST['item_location']) ? $_POST['item_location'] : '';
 $draw = isset($_POST['draw']) ? intval($_POST['draw']) : 1;
 $start = isset($_POST['start']) ? intval($_POST['start']) : 0;
 $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
@@ -37,11 +37,7 @@ if (!empty($brand)) {
     $params[] = $brand;
     $types .= "s";
 }
-if (!empty($item_location)) {
-    $where_conditions[] = "item_location = ?";
-    $params[] = $item_location;
-    $types .= "s";
-}
+
 
 if (!empty($where_conditions)) {
     $sql_total .= " AND " . implode(" AND ", $where_conditions);
@@ -58,6 +54,7 @@ $recordsTotal = $row_total['total'];
 $recordsFiltered = $recordsTotal;
 
 // 3. Build the main query with LIMIT for pagination
+
 $sql = "SELECT
             items.*,
             categories.name AS category_name,

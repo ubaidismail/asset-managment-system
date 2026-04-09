@@ -146,7 +146,7 @@ include 'inc/modals/forms/items/add-items.php';
                         data: 'action'
                     }
                 ]
-             
+
             });
 
         });

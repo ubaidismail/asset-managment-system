@@ -162,16 +162,16 @@ if (!$item) {
         </div>
 
         <!-- Purchase Info -->
-        <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Purchase Information</h6>
+        <!-- <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Purchase Information</h6> -->
         <div class="row g-3 mb-4">
             <!-- <div class="col-md-6">
                 <small class="text-muted d-block">Purchase Date</small>
                 <span><?= !empty($item['purchase_date']) ? date('d M Y', strtotime($item['purchase_date'])) : '—' ?></span>
             </div> -->
-            <div class="col-md-6">
+            <!-- <div class="col-md-6">
                 <small class="text-muted d-block">Purchase Price</small>
                 <span><?= !empty($item['purchase_price']) ?  'QAR ' . number_format($item['purchase_price'], 2) : '—' ?></span>
-            </div>
+            </div> -->
             <!-- <div class="col-md-6">
                 <small class="text-muted d-block">Warranty Expiry</small>
                 <span><?= !empty($item['warranty_expiry']) ? date('d M Y', strtotime($item['warranty_expiry'])) : '—' ?></span>

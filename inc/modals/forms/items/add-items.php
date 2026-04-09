@@ -52,7 +52,7 @@ if (isset($_POST['item_submit'])) {
     $item_serial_number = $_POST['item_serial_number'];
     $item_brand = $_POST['item_brand'];
     $item_model = $_POST['item_model'];
-    $item_purchase_price = $_POST['item_purchase_price'];
+    // $item_purchase_price = $_POST['item_purchase_price'];
     $material_id = $_POST['item_material'];
     $item_color = $_POST['item_color'];
     $size_width = $_POST['size_width'];
@@ -94,7 +94,7 @@ if (isset($_POST['item_submit'])) {
 
     try {
         $sql = 'INSERT INTO items 
-            (name, item_description, type_id, category_id, serial_number, brand, model, purchase_price,
+            (name, item_description, type_id, category_id, serial_number, brand, model,
             material_id, color, size_width, size_height, size_depth, size_unit,
             item_weight, weight_unit, is_adjustable,
             item_location, notes, image,asset_code) 
@@ -107,7 +107,7 @@ if (isset($_POST['item_submit'])) {
         }
 
         $insert_query->bind_param(
-            'ssiisssdisdddidiissss',
+            'ssiisssisdddidiissss',
             $item_name,
             $item_desc,
             $type_id,
@@ -115,7 +115,7 @@ if (isset($_POST['item_submit'])) {
             $item_serial_number,
             $item_brand,
             $item_model,
-            $item_purchase_price, // d
+            // $item_purchase_price, // d
             $material_id,
             $item_color,
             $size_width,          // d
@@ -360,11 +360,11 @@ if (isset($_POST['item_submit'])) {
                             <label for="item_purchased_date">Item Puchased Date</label>
                             <input type="date" class="form-control" id="item_purchased_date" name="item_purchased_date">
                         </div> -->
-
+<!-- 
                         <div class="form-group">
                             <label for="item_purchase_price">Item Puchased Price</label>
                             <input type="number" step="0.01" min="0" class="form-control" id="item_purchase_price" name="item_purchase_price" placeholder="e.g. 1500.00">
-                        </div>
+                        </div> -->
                         <!-- <div class="form-group">
                             <label for="warranty_expiry">Warranty Expiry</label>
                             <input type="date" class="form-control" id="warranty_expiry" name="warranty_expiry">

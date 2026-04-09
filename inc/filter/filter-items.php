@@ -39,23 +39,6 @@
         </select>
     </div>
     <div class="form-group mt-2 mb-2">
-        <label for="filter_by_material">Filter by Material</label>
-        <select class="form-select" name="filter_by_material" id="filter_by_material">
-            <option value="">___Select Material___</option>
-            <?php
-            if (!empty($rows_materials)) {
-                foreach ($rows_materials as $row) {
-                    $id = $row['id'];
-                    $name = $row['name'];
-            ?>
-                    <option value="<?php echo $id; ?>"><?php echo $name; ?></option>
-            <?php
-                }
-            }
-            ?>
-        </select>
-    </div>
-    <div class="form-group mt-2 mb-2">
         <label for="filter_by_brand">Filter by Brand</label>
         <select class="form-select" name="filter_by_brand" id="filter_by_brand">
             <option value="">___Select Brand___</option>
@@ -73,7 +56,25 @@
         </select>
     </div>
 
-    <div class="form-group mt-2 mb-2">
+     <div class="form-group mt-2 mb-2">
+        <label for="filter_by_material">Filter by Material</label>
+        <select class="form-select" name="filter_by_material" id="filter_by_material">
+            <option value="">___Select Material___</option>
+            <?php
+            if (!empty($rows_materials)) {
+                foreach ($rows_materials as $row) {
+                    $id = $row['id'];
+                    $name = $row['name'];
+            ?>
+                    <option value="<?php echo $id; ?>"><?php echo $name; ?></option>
+            <?php
+                }
+            }
+            ?>
+        </select>
+    </div>
+
+    <!-- <div class="form-group mt-2 mb-2">
         <label for="filter_by_location">Filter by Item Location</label>
         <select class="form-select" name="filter_by_location" id="filter_by_location">
             <option value="">___Select Location___</option>
@@ -89,6 +90,6 @@
             }
             ?>
         </select>
-    </div>
+    </div> -->
 
 </div>

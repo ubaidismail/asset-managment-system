@@ -27,7 +27,7 @@ body {
   font-size: 20px;
   font-weight: bold;
 }
-.units_dropdown ul.dropdown-menu.show {
+.units_dropdown ul.dropdown-menu.show, .inventory_dropdown ul.dropdown-menu.show {
     margin-left: 24px !important;
 }
 

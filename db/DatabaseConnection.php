@@ -4,7 +4,7 @@ class DatabaseConnection {
     private $host = 'localhost';
     private $user = 'root';
     private $password = '';
-    private $db = 'ams_db';
+    private $db = 'tng_ams';
     private $conn;
 
     public function __construct() {

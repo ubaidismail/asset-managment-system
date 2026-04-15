@@ -4,13 +4,13 @@ require_once '../init.php';
 
 $get_materials = Materials::getAll();
 
-$get_materials = 'SELECT materials.*, t1.name as type_name FROM materials left join types t1 on materials.type_id = t1.id where materials.status = 1 order by materials.id desc';
+$get_materials = 'SELECT inventory_materials.*, t1.name as type_name FROM inventory_materials left join inventory_types t1 on inventory_materials.type_id = t1.id where inventory_materials.status = 1 order by inventory_materials.id desc';
 $query_run = mysqli_query($conn, $get_materials);
 $rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
 
 if (isset($_GET['material_del'])) {
     $material_id = $_GET['material_del'];
-    $delete_sql = 'Update materials set status = 0 where id = ' . $material_id;
+    $delete_sql = 'Update inventory_materials set status = 0 where id = ' . $material_id;
     if (mysqli_query($conn, $delete_sql)) {
         header('Location: ' . $_SERVER['PHP_SELF']);
         exit;

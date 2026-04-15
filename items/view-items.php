@@ -15,11 +15,11 @@ $sql = "SELECT i.*,
         ic.name AS condition_name,
         su.symbol AS size_unit,
         wu.symbol AS weight_unit
-        FROM items i
-        LEFT JOIN categories c ON i.category_id = c.id
-        LEFT JOIN types t ON i.type_id = t.id
-        LEFT JOIN materials m ON i.material_id = m.id
-        LEFT JOIN item_conditions ic ON i.item_condition = ic.id
+        FROM inventory_items i
+        LEFT JOIN inventory_categories c ON i.category_id = c.id
+        LEFT JOIN inventory_types t ON i.type_id = t.id
+        LEFT JOIN inventory_materials m ON i.material_id = m.id
+        LEFT JOIN inventory_item_conditions ic ON i.item_condition = ic.id
         LEFT JOIN size_units su ON i.size_unit = su.id
         LEFT JOIN weight_units wu ON i.weight_unit = wu.id
         WHERE i.id = ?";

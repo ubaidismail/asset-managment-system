@@ -12,7 +12,7 @@ $start = isset($_POST['start']) ? intval($_POST['start']) : 0;
 $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
 
 // 2. Build the base query for counting total records
-$sql_total = "SELECT COUNT(*) as total FROM items WHERE status = 1";
+$sql_total = "SELECT COUNT(*) as total FROM inventory_items WHERE status = 1";
 $where_conditions = [];
 $params = [];
 $types = "";
@@ -56,19 +56,19 @@ $recordsFiltered = $recordsTotal;
 // 3. Build the main query with LIMIT for pagination
 
 $sql = "SELECT
-            items.*,
-            categories.name AS category_name,
-            types.name AS type_name
-        FROM items
-        LEFT JOIN categories ON items.category_id = categories.id
-        LEFT JOIN types ON items.type_id = types.id
-        WHERE items.status = 1";
+            inventory_items.*,
+            inventory_categories.name AS category_name,
+            inventory_types.name AS type_name
+        FROM inventory_items
+        LEFT JOIN inventory_categories ON inventory_items.category_id = inventory_categories.id
+        LEFT JOIN inventory_types ON inventory_items.type_id = inventory_types.id
+        WHERE inventory_items.status = 1";
 
 if (!empty($where_conditions)) {
     $sql .= " AND " . implode(" AND ", $where_conditions);
 }
 
-$sql .= " ORDER BY items.id DESC LIMIT ?, ?";
+$sql .= " ORDER BY inventory_items.id DESC LIMIT ?, ?";
 
 $stmt = mysqli_prepare($conn, $sql);
 if (!$stmt) {

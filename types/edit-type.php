@@ -23,7 +23,7 @@ if (isset($_POST['update_type_form'])) {
     if (empty($type_name)) {
         $error_mess = 'All fields are required';
     } else {
-        $update_sql = "UPDATE types SET name='$type_name', type_description='$type_description', cat_id = '$cat_id' WHERE id = {$type_data['id']}";
+        $update_sql = "UPDATE inventory_types SET name='$type_name', type_description='$type_description', cat_id = '$cat_id' WHERE id = {$type_data['id']}";
         if (mysqli_query($conn, $update_sql)) {
             $success_mess = 'Type updated successfully';
             // Refresh the category data

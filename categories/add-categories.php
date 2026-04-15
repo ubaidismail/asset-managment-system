@@ -8,7 +8,7 @@ if(isset($_POST['submit_cat_form'])){
     $name = $_POST['cat_name'];
     $cat_desc = $_POST['cat_desc'];
 
-    $insert_query = $conn->prepare("INSERT INTO categories (name, description) values (?, ?)");
+    $insert_query = $conn->prepare("INSERT INTO inventory_categories (name, description) values (?, ?)");
     $insert_query->bind_param('ss', $name, $desc);
     if($insert_query->execute()){
         $success_mess = 'Category Inserted';

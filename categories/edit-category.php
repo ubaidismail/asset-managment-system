@@ -22,7 +22,7 @@ if(isset($_POST['update_cat_form'])){
     if(empty($cat_name) || empty($cat_desc)){
         $error_mess = 'All fields are required';
     }else{
-        $update_sql = "UPDATE categories SET name='$cat_name', description='$cat_desc' WHERE id = {$cat_data['id']}";
+        $update_sql = "UPDATE inventory_categories SET name='$cat_name', description='$cat_desc' WHERE id = {$cat_data['id']}";
         if(mysqli_query($conn, $update_sql)){
             $success_mess = 'Category updated successfully';
             // Refresh the category data

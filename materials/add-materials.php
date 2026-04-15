@@ -10,7 +10,7 @@ if (isset($_POST['submit_condition_form'])) {
     $name = $_POST['material_name'];
     $type_id = $_POST['type_id'];
 
-    $insert_query = $conn->prepare('INSERT INTO materials (type_id, name) values (?, ?)');
+    $insert_query = $conn->prepare('INSERT INTO inventory_materials (type_id, name) values (?, ?)');
     $insert_query->bind_param('is', $type_id, $name);
     if ($insert_query->execute()) {
         $success_mess = 'Material Inserted';

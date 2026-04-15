@@ -4,7 +4,7 @@ $rows_cat = Categories::getAll();
 
 $rows_type = Types::getAll();
 
-$rows_conditions =  ItemConditions::getAll();
+// $rows_conditions =  ItemConditions::getAll();
 
 $rows_materials = Materials::getAll();
 
@@ -93,7 +93,7 @@ if (isset($_POST['item_submit'])) {
     move_uploaded_file($image_tmp, $upload_path);
 
     try {
-        $sql = 'INSERT INTO items 
+        $sql = 'INSERT INTO inventory_items 
             (name, item_description, type_id, category_id, serial_number, brand, model,
             material_id, color, size_width, size_height, size_depth, size_unit,
             item_weight, weight_unit, is_adjustable,
@@ -369,15 +369,7 @@ if (isset($_POST['item_submit'])) {
                             <label for="warranty_expiry">Warranty Expiry</label>
                             <input type="date" class="form-control" id="warranty_expiry" name="warranty_expiry">
                         </div> -->
-                        <!-- <div class="form-group">
-                            <label for="item_name">Item Condition</label>
-                            <select class="form-select" aria-label="Default select example">
-                                <option selected>___Select Condition___</option>
-                                <?php foreach ($rows_conditions as $condition): ?>
-                                    <option value="<?php echo $condition['id']; ?>"><?php echo $condition['name']; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div> -->
+                      
                         <!-- 
                         <div class="form-group">
                             <label for="last_maintenance_date">Item Last Maintenance Date</label>

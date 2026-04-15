@@ -2,13 +2,13 @@
 require_once '../init.php';
 
 
-$select_type = 'SELECT types.*, c1.name as category_name FROM types left join categories c1 on types.cat_id = c1.id where types.status = 1 order by types.id desc';
+$select_type = 'SELECT inventory_types.*, c1.name as category_name FROM inventory_types left join inventory_categories c1 on inventory_types.cat_id = c1.id where inventory_types.status = 1 order by inventory_types.id desc';
 $query_run = mysqli_query($conn, $select_type);
 $rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
 
 if (isset($_GET['type_del'])) {
     $type_del = $_GET['type_del'];
-    $delete_sql = 'Update types set status = 0 where id = ' . $type_del;
+    $delete_sql = 'Update inventory_types set status = 0 where id = ' . $type_del;
     if (mysqli_query($conn, $delete_sql)) {
         header('Location: ' . $_SERVER['PHP_SELF']);
         exit;

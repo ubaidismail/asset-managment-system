@@ -8,28 +8,42 @@ class Item
         $limit = (int)$limit;
         $offset = (int)$offset;
 
-        $sql = "SELECT * FROM items where status = 1 LIMIT $limit OFFSET $offset";
+        $sql = "SELECT * FROM inventory_items where status = 1 LIMIT $limit OFFSET $offset";
         $result = mysqli_query($conn, $sql);
+        if (!$result) {
+            die("Query Failed: " . mysqli_error($conn));
+        }
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
-    public static function getBrandNames(){
+    public static function getBrandNames()
+    {
         global $conn;
-        $sql = "SELECT DISTINCT brand FROM items where status = 1";
+        $sql = "SELECT DISTINCT brand FROM inventory_items where status = 1";
         $result = mysqli_query($conn, $sql);
+        if (!$result) {
+            die("Query Failed: " . mysqli_error($conn));
+        }
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
-    public static function getItemLocation(){
+    public static function getItemLocation()
+    {
         global $conn;
-        $sql = "SELECT DISTINCT item_location FROM items where status = 1";
+        $sql = "SELECT DISTINCT item_location FROM inventory_items where status = 1";
         $result = mysqli_query($conn, $sql);
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        if (!$result) {
+            die("Query Failed: " . mysqli_error($conn));
+        }
     }
     public static function filterByCategory($category_id)
     {
         global $conn;
         $category_id = (int)$category_id;
-        $sql = "SELECT * FROM items WHERE category_id = $category_id AND status = 1";
+        $sql = "SELECT * FROM inventory_items WHERE category_id = $category_id AND status = 1";
         $result = mysqli_query($conn, $sql);
+        if (!$result) {
+            die("Query Failed: " . mysqli_error($conn));
+        }
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 
@@ -37,8 +51,11 @@ class Item
     {
         global $conn;
         $type_id = (int)$type_id;
-        $sql = "SELECT * FROM items WHERE type_id = $type_id AND status = 1";
+        $sql = "SELECT * FROM inventory_items WHERE type_id = $type_id AND status = 1";
         $result = mysqli_query($conn, $sql);
+        if (!$result) {
+            die("Query Failed: " . mysqli_error($conn));
+        }
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 
@@ -46,8 +63,11 @@ class Item
     {
         global $conn;
         $brand_name = (int)$brand_name;
-        $sql = "SELECT * FROM items WHERE brand LIKE '%$brand_name%' AND status = 1";
+        $sql = "SELECT * FROM inventory_items WHERE brand LIKE '%$brand_name%' AND status = 1";
         $result = mysqli_query($conn, $sql);
+        if (!$result) {
+            die("Query Failed: " . mysqli_error($conn));
+        }
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 
@@ -55,8 +75,11 @@ class Item
     {
         global $conn;
         $model_name = (int)$model_name;
-        $sql = "SELECT * FROM items WHERE brand LIKE '%$model_name%' AND status = 1";
+        $sql = "SELECT * FROM inventory_items WHERE brand LIKE '%$model_name%' AND status = 1";
         $result = mysqli_query($conn, $sql);
+        if (!$result) {
+            die("Query Failed: " . mysqli_error($conn));
+        }
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 
@@ -64,7 +87,10 @@ class Item
     {
         global $conn;
         $id = mysqli_real_escape_string($conn, $id);
-        $result = mysqli_query($conn, "SELECT * FROM items WHERE id = $id");
+        $result = mysqli_query($conn, "SELECT * FROM inventory_items WHERE id = $id");
+        if (!$result) {
+            die("Query Failed: " . mysqli_error($conn));
+        }
         return mysqli_fetch_assoc($result);
     }
 
@@ -72,14 +98,20 @@ class Item
     { // soft delete
         global $conn;
         $id = mysqli_real_escape_string($conn, $id);
-        $delete_sql = 'Update items set status = 0 where id = ' . $id;
+        $delete_sql = 'Update inventory_items set status = 0 where id = ' . $id;
+        if (!$result) {
+            die("Query Failed: " . mysqli_error($conn));
+        }
         return mysqli_query($conn, $delete_sql);
     }
     public static function item_restore($id)
     {
         global $conn;
         $id = mysqli_real_escape_string($conn, $id);
-        $restore_sql = 'Update items set status = 1 where id = ' . $id;
+        $restore_sql = 'Update inventory_items set status = 1 where id = ' . $id;
+        if (!$result) {
+            die("Query Failed: " . mysqli_error($conn));
+        }
         return mysqli_query($conn, $restore_sql);
     }
 }

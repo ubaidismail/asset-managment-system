@@ -23,7 +23,7 @@ if (isset($_POST['update_material_form'])) {
     if (empty($material_name)) {
         $error_mess = 'All fields are required';
     } else {
-        $update_sql = "UPDATE materials SET name='$material_name', type_id='$material_type' WHERE id = {$material_data['id']}";
+        $update_sql = "UPDATE inventory_materials SET name='$material_name', type_id='$material_type' WHERE id = {$material_data['id']}";
         if (mysqli_query($conn, $update_sql)) {
             $success_mess = 'Material updated successfully';
             // Refresh the category data

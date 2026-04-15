@@ -1,9 +1,9 @@
 <?php
 require_once 'init.php';
 $select_type = 'SELECT i1.*, c1.name as category_name, t1.name as type_name 
-                FROM items i1 
-                left join categories c1 on i1.category_id = c1.id 
-                left join types t1 on i1.type_id = t1.id where i1.status = 1 order by i1.id desc limit 100';
+                FROM inventory_items i1 
+                left join inventory_categories c1 on i1.category_id = c1.id 
+                left join inventory_types t1 on i1.type_id = t1.id where i1.status = 1 order by i1.id desc limit 100';
 $query_run = mysqli_query($conn, $select_type);
 $rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
 

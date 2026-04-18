@@ -3,7 +3,7 @@
 class Materials {
     public static function getAll() {
         global $conn;
-        $sql = "SELECT *FROM inventory_materials WHERE status = 1 group by name order by name asc";
+        $sql = "SELECT * FROM Materials WHERE status = 1 group by MaterialName order by MaterialName asc";
         $result = mysqli_query($conn, $sql);
          if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
@@ -14,7 +14,7 @@ class Materials {
     public static function find($id) {
         global $conn;
         $id = mysqli_real_escape_string($conn, $id);
-        $result = mysqli_query($conn, "SELECT * FROM inventory_materials WHERE id = $id");
+        $result = mysqli_query($conn, "SELECT * FROM Materials WHERE MaterialID = $id");
          if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
         }
@@ -24,7 +24,7 @@ class Materials {
     {
         global $conn;
         $material_id = (int)$material_id;
-        $sql = "SELECT * FROM inventory_materials WHERE id = $material_id AND status = 1";
+        $sql = "SELECT * FROM Materials WHERE MaterialID = $material_id AND status = 1";
         $result = mysqli_query($conn, $sql);
          if (!$result) {
             die("Query Failed: " . mysqli_error($conn));

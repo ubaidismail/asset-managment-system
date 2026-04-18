@@ -1,12 +1,14 @@
 <?php
 require_once 'init.php';
-$select_type = 'SELECT i1.*, c1.name as category_name, t1.name as type_name 
-                FROM inventory_items i1 
-                left join inventory_categories c1 on i1.category_id = c1.id 
-                left join inventory_types t1 on i1.type_id = t1.id where i1.status = 1 order by i1.id desc limit 100';
-$query_run = mysqli_query($conn, $select_type);
-$rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
+// $select_type = 'SELECT i1.*, c1.FullName as category_name, t1.FullName as type_name 
+//                 FROM DigiInventoryItems i1 
+//                 left join DigiInventoryCategories c1 on i1.CategoryID = c1.CategoryID 
+//                 left join DigiInventoryTypes t1 on i1.TypeID = t1.TypeID where i1.status = 1 order by i1.ItemID desc limit 100';
+$get_items = Item::getAll(100, 0);
 
+
+// $rows = mysqli_fetch_all($query_run, MYSQLI_ASSOC);
+// var_dump($rows);
 if (isset($_GET['item_del'])) {
     $item_id = $_GET['item_del'];
     $delete_sql = Item::item_delete($item_id);
@@ -38,15 +40,13 @@ include 'inc/modals/forms/items/add-items.php';
             <div class="col-md-9">
                 <table class="table" id="table_list">
                     <?php
-                    if (!empty($rows)) {
+                    if (!empty($get_items)) {
                     ?>
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Asset Code</th>
                                 <th scope="col">Item Name</th>
-                                <th scope="col">Item Category</th>
-                                <th scope="col">Item Type</th>
                                 <th scope="col">Item Image</th>
                                 <th scope="col">Action</th>
                             </tr>
@@ -54,20 +54,17 @@ include 'inc/modals/forms/items/add-items.php';
                         <tbody>
                             <?php
                             $count = 0;
-                            foreach ($rows as $row) {
+                            foreach ($get_items as $row) {
                                 $count++;
                             ?>
                                 <tr>
                                     <td><?php echo $count; ?> </td>
-                                    <td class="bebas-neue-bold"><?php echo $row['asset_code']; ?></td>
-                                    <td><?php echo $row['name']; ?> </td>
-                                    <td><?php echo $row['category_name']; ?> </td>
-                                    <td><?php echo $row['type_name']; ?> </td>
-                                    <td><img src="uploads/<?php echo $row['image']; ?>" alt="Item Image" width="100" height="100" style="object-fit:contain;"></td>
-                                    <td><a href="items/view-items.php?id=<?= $row['id'] ?>"
-
-                                            class="btn btn-sm btn-dark">View</a>
-                                        <a href="<?php $_SERVER['PHP_SELF'] ?>?item_del=<?= $row['id'] ?>" class="btn btn-sm btn-danger">Delete</a>
+                                    <td class="bebas-neue-bold"><?php echo $row['Barcode']; ?></td>
+                                    <td><?php echo $row['FullName']; ?> </td>
+                                    <td><img src="<?php echo $row['Picture']; ?>" alt="Item Image" width="100" height="100" style="object-fit:contain;"></td>
+                                    <td>
+                                        <a href="items/view-items.php?id=<?php echo $row['ItemID']; ?>" class="btn btn-sm btn-dark">View</a>
+                                        <a href="?item_del=<?php echo $row['ItemID']; ?>" class="btn btn-sm btn-danger">Delete</a>
                                     </td>
                                 </tr>
                             <?php
@@ -133,12 +130,12 @@ include 'inc/modals/forms/items/add-items.php';
                     {
                         data: 'name'
                     },
-                    {
-                        data: 'category_name'
-                    },
-                    {
-                        data: 'type_name'
-                    },
+                    // {
+                    //     data: 'category_name'
+                    // },
+                    // {
+                    //     data: 'type_name'
+                    // },
                     {
                         data: 'image'
                     },

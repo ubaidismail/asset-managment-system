@@ -14,6 +14,9 @@
   <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
   <script src="//cdn.datatables.net/2.3.7/js/dataTables.min.js"></script>
 
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
   <!-- <script>
     document.querySelectorAll('.table').forEach(el => {
       new DataTable(el);
@@ -35,7 +38,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-seam" viewBox="0 0 16 16">
           <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z" />
         </svg>
-        Items <?php echo '(' . count(Item::getAll()) . ')'; ?>
+        Items <?php echo '(' . count(Item::getAll(-1)) . ')'; ?>
       </a>
     </li>
     <li class="nav-item dropdown inventory_dropdown">
@@ -46,9 +49,9 @@
         Manage Inventory
       </a>
       <!-- sub items -->
-       <ul class="dropdown-menu" aria-labelledby="inventoryDropdown">
+      <ul class="dropdown-menu" aria-labelledby="inventoryDropdown">
         <li><a class="dropdown-item  ml-5" href="<?php echo URL_ROOT; ?>/inventory/list.php">Inventory</a></li>
-        <li><a class="dropdown-item  ml-5" href="<?php echo URL_ROOT; ?>/inventory/stock/list.php">Assets </a></li>
+        <li><a class="dropdown-item  ml-5" href="<?php echo URL_ROOT; ?>/inventory/asset/list.php">Assets </a></li>
       </ul>
     </li>
   </ul>
@@ -77,10 +80,11 @@
           <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 
           0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2" />
         </svg>
-        Materials <?php echo '(' . count(Materials::getAll()) . ')'; ?>
+        Materials <? php /// echo '(' . count(Materials::getAll()) . ')'; 
+                  ?>
       </a>
     </li>
-   
+
 
     <li class="nav-item dropdown units_dropdown">
       <a class="nav-link dropdown-toggle" href="javascript:void(0)" id="unitsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">

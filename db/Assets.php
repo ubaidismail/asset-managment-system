@@ -1,9 +1,11 @@
 <?php
 
-class Categories {
-    public static function getAll() {
+class Assets {
+    public static function getAll( $limit = 100, $offset = 0) {
         global $conn;
-        $sql = "SELECT * FROM DigiInventoryCategories where status = 1 order by CategoryID desc";
+        $limit = (int)$limit;
+        $offset = (int)$offset;
+        $sql = "SELECT * FROM Assets where status = 1 order by AssetsID desc LIMIT $limit OFFSET $offset";
         $result = mysqli_query($conn, $sql);
          if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
@@ -14,16 +16,16 @@ class Categories {
     public static function find($id) {
         global $conn;
         $id = mysqli_real_escape_string($conn, $id);
-        $result = mysqli_query($conn, "SELECT * FROM DigiInventoryCategories WHERE CategoryID = $id");
+        $result = mysqli_query($conn, "SELECT * FROM Assets WHERE AssetsID = $id");
          if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
         }
         return mysqli_fetch_assoc($result);
     }
-    public static function category_delete($id){
+    public static function asset_delete($id){
         global $conn;
         $id = mysqli_real_escape_string($conn, $id);
-        $delete_sql = 'Update DigiInventoryCategories set status = 0 where CategoryID = ' . $id;
+        $delete_sql = 'Update Assets set status = 0 where AssetsID = ' . $id;
          if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
         }

@@ -21,7 +21,16 @@ body {
   align-items: center;
   height: 60px;
 }
-
+span.select2-container.select2-container--default.select2-container--open, span.select2-container.select2-container--bootstrap-5.select2-container--open {
+    z-index: 9999;
+    width: 100% !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    margin-left: -14px;
+}
+.select2-container--default .select2-selection--single {
+    border: 1px solid #cdd4da !important;
+}
 .logo {
   color: #ffffff;
   font-size: 20px;

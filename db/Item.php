@@ -2,23 +2,27 @@
 
 class Item
 {
-    public static function getAll($limit = 10, $offset = 0)
+    public static function getAll($limit = 100, $offset = 0)
     {
         global $conn;
-        $limit = (int)$limit;
-        $offset = (int)$offset;
-
-        $sql = "SELECT * FROM inventory_items where status = 1 LIMIT $limit OFFSET $offset";
-        $result = mysqli_query($conn, $sql);
-        if (!$result) {
+        if($limit == -1){
+            $sql = "SELECT * FROM DigiInventoryItems where status = 1 order by ItemID desc";
+        } else {
+            $limit = (int)$limit;
+            $offset = (int)$offset;
+            $sql = "SELECT * FROM DigiInventoryItems where status = 1 order by ItemID desc LIMIT $limit OFFSET $offset";
+        }
+         $result = mysqli_query($conn, $sql);
+         if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
         }
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
+   
     public static function getBrandNames()
     {
         global $conn;
-        $sql = "SELECT DISTINCT brand FROM inventory_items where status = 1";
+        $sql = "SELECT DISTINCT brand FROM DigiInventoryItems where status = 1";
         $result = mysqli_query($conn, $sql);
         if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
@@ -28,7 +32,7 @@ class Item
     public static function getItemLocation()
     {
         global $conn;
-        $sql = "SELECT DISTINCT item_location FROM inventory_items where status = 1";
+        $sql = "SELECT DISTINCT item_location FROM DigiInventoryItems where status = 1";
         $result = mysqli_query($conn, $sql);
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
         if (!$result) {
@@ -39,7 +43,7 @@ class Item
     {
         global $conn;
         $category_id = (int)$category_id;
-        $sql = "SELECT * FROM inventory_items WHERE category_id = $category_id AND status = 1";
+        $sql = "SELECT * FROM DigiInventoryItems WHERE CategoryID = $category_id AND status = 1";
         $result = mysqli_query($conn, $sql);
         if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
@@ -51,7 +55,7 @@ class Item
     {
         global $conn;
         $type_id = (int)$type_id;
-        $sql = "SELECT * FROM inventory_items WHERE type_id = $type_id AND status = 1";
+        $sql = "SELECT * FROM DigiInventoryItems WHERE TypeID = $type_id AND status = 1";
         $result = mysqli_query($conn, $sql);
         if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
@@ -59,11 +63,11 @@ class Item
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 
-    public static function filterByBrand($brand_name)
+    public static function filterByBrand($brand_id)
     {
         global $conn;
-        $brand_name = (int)$brand_name;
-        $sql = "SELECT * FROM inventory_items WHERE brand LIKE '%$brand_name%' AND status = 1";
+        $brand_id = (int)$brand_id;
+        $sql = "SELECT * FROM DigiInventoryItems WHERE BrandID = $brand_id AND status = 1";
         $result = mysqli_query($conn, $sql);
         if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
@@ -75,7 +79,7 @@ class Item
     {
         global $conn;
         $model_name = (int)$model_name;
-        $sql = "SELECT * FROM inventory_items WHERE brand LIKE '%$model_name%' AND status = 1";
+        $sql = "SELECT * FROM DigiInventoryItems WHERE ModelNumber LIKE '%$model_name%' AND status = 1";
         $result = mysqli_query($conn, $sql);
         if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
@@ -87,7 +91,7 @@ class Item
     {
         global $conn;
         $id = mysqli_real_escape_string($conn, $id);
-        $result = mysqli_query($conn, "SELECT * FROM inventory_items WHERE id = $id");
+        $result = mysqli_query($conn, "SELECT * FROM DigiInventoryItems WHERE ItemID = $id");
         if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
         }
@@ -98,7 +102,7 @@ class Item
     { // soft delete
         global $conn;
         $id = mysqli_real_escape_string($conn, $id);
-        $delete_sql = 'Update inventory_items set status = 0 where id = ' . $id;
+        $delete_sql = 'Update DigiInventoryItems set status = 0 where ItemID = ' . $id;
         if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
         }
@@ -108,7 +112,7 @@ class Item
     {
         global $conn;
         $id = mysqli_real_escape_string($conn, $id);
-        $restore_sql = 'Update inventory_items set status = 1 where id = ' . $id;
+        $restore_sql = 'Update DigiInventoryItems set status = 1 where ItemID = ' . $id;
         if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
         }

@@ -10,8 +10,8 @@
             if (!empty($rows_cat)) {
                 $count = 0;
                 foreach ($rows_cat as $row) {
-                    $id = $row['id'];
-                    $name = $row['name'];
+                    $id = $row['CategoryID'];
+                    $name = $row['FullName'];
             ?>
                     <option value="<?php echo $id; ?>"><?php echo $name; ?></option>
             <?php
@@ -28,8 +28,8 @@
             if (!empty($rows_type)) {
                 $count = 0;
                 foreach ($rows_type as $row) {
-                    $id = $row['id'];
-                    $name = $row['name'];
+                    $id = $row['TypeID'];
+                    $name = $row['FullName'];
             ?>
                     <option value="<?php echo $id; ?>"><?php echo $name; ?></option>
             <?php
@@ -43,10 +43,10 @@
         <select class="form-select" name="filter_by_brand" id="filter_by_brand">
             <option value="">___Select Brand___</option>
             <?php
-            if (!empty(Item::getBrandNames())) {
+            if (!empty(Brands::getAll())) {
                 $count = 0;
-                foreach (Item::getBrandNames() as $row) {
-                    $name = $row['brand'];
+                foreach (Brands::getAll() as $row) {
+                    $name = $row['BrandName'];
             ?>
                     <option value="<?php echo $name; ?>"><?php echo $name; ?></option>
             <?php
@@ -63,8 +63,8 @@
             <?php
             if (!empty($rows_materials)) {
                 foreach ($rows_materials as $row) {
-                    $id = $row['id'];
-                    $name = $row['name'];
+                    $id = $row['MaterialID'];
+                    $name = $row['MaterialName'];
             ?>
                     <option value="<?php echo $id; ?>"><?php echo $name; ?></option>
             <?php
@@ -73,23 +73,5 @@
             ?>
         </select>
     </div>
-
-    <!-- <div class="form-group mt-2 mb-2">
-        <label for="filter_by_location">Filter by Item Location</label>
-        <select class="form-select" name="filter_by_location" id="filter_by_location">
-            <option value="">___Select Location___</option>
-            <?php
-            if (!empty(Item::getItemLocation())) {
-                $count = 0;
-                foreach (Item::getItemLocation() as $row) {
-                    $name = $row['item_location'];
-            ?>
-                    <option value="<?php echo $name; ?>"><?php echo $name; ?></option>
-            <?php
-                }
-            }
-            ?>
-        </select>
-    </div> -->
 
 </div>

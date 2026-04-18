@@ -41,14 +41,15 @@ include '../inc/header.php';
                 ?>
                         <tr>
                             <td><?php echo $count; ?> </td>
-                            <td><?php echo $row['name']; ?> </td>
-                            <td><a href="edit-category.php?id=<?php echo $row['id']; ?>">Edit</a> - <a href="<?php echo $_SERVER['PHP_SELF']; ?>?cat_del=<?php echo $row['id']; ?>">Delete</a></td>
-                        </tr
-                            <?php
-                        }
+                            <td><?php echo $row['FullName']; ?> </td>
+                            <td><a href="edit-category.php?id=<?php echo $row['CategoryID']; ?>">Edit</a> - <a href="<?php echo $_SERVER['PHP_SELF']; ?>?cat_del=<?php echo $row['CategoryID']; ?>">Delete</a></td>
+                        </tr>
+                <?php
                     }
-                            ?>
-                            </tbody>
+                }
+                ?>
+
+            </tbody>
         </table>
     </div>
 </div>

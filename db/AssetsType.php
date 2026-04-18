@@ -1,9 +1,10 @@
 <?php
 
-class Categories {
+class AssetsType {
     public static function getAll() {
         global $conn;
-        $sql = "SELECT * FROM DigiInventoryCategories where status = 1 order by CategoryID desc";
+     
+        $sql = "SELECT * FROM AssetsType where status = 1 order by AssetsTypeID desc";
         $result = mysqli_query($conn, $sql);
          if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
@@ -14,17 +15,17 @@ class Categories {
     public static function find($id) {
         global $conn;
         $id = mysqli_real_escape_string($conn, $id);
-        $result = mysqli_query($conn, "SELECT * FROM DigiInventoryCategories WHERE CategoryID = $id");
+        $result = mysqli_query($conn, "SELECT * FROM AssetsType WHERE AssetsTypeID = $id");
          if (!$result) {
             die("Query Failed: " . mysqli_error($conn));
         }
         return mysqli_fetch_assoc($result);
     }
-    public static function category_delete($id){
+    public static function asset_delete($id){
         global $conn;
         $id = mysqli_real_escape_string($conn, $id);
-        $delete_sql = 'Update DigiInventoryCategories set status = 0 where CategoryID = ' . $id;
-         if (!$result) {
+        $delete_sql = 'Update AssetsType set status = 0 where AssetsTypeID = ' . $id;
+         if (!$delete_sql) {
             die("Query Failed: " . mysqli_error($conn));
         }
         return mysqli_query($conn, $delete_sql);

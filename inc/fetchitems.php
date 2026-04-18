@@ -12,38 +12,40 @@ $start = isset($_POST['start']) ? intval($_POST['start']) : 0;
 $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
 
 // 2. Build the base query for counting total records
-$sql_total = "SELECT COUNT(*) as total FROM inventory_items WHERE status = 1";
+$sql_total = "SELECT COUNT(*) as total FROM DigiInventoryItems WHERE status = 1";
 $where_conditions = [];
 $params = [];
 $types = "";
 
-if (!empty($category_id)) {
-    $where_conditions[] = "category_id = ?";
+if ($category_id !== '') {
+    $where_conditions[] = "DigiInventoryItems.CategoryID = ?";
     $params[] = $category_id;
     $types .= "i";
 }
-if (!empty($type_id)) {
-    $where_conditions[] = "type_id = ?";
+if ($type_id !== '') {
+    $where_conditions[] = "DigiInventoryItems.TypeID = ?";
     $params[] = $type_id;
     $types .= "i";
 }
-if (!empty($material_id)) {
-    $where_conditions[] = "material_id = ?";
+if ($material_id !== '') {
+    $where_conditions[] = "DigiInventoryItems.MaterialID = ?";
     $params[] = $material_id;
     $types .= "i";
 }
-if (!empty($brand)) {
-    $where_conditions[] = "brand = ?";
+if ($brand !== '') {
+    $where_conditions[] = "DigiInventoryItems.BrandID = ?";
     $params[] = $brand;
-    $types .= "s";
+    $types .= "i"; // fix here
 }
-
 
 if (!empty($where_conditions)) {
     $sql_total .= " AND " . implode(" AND ", $where_conditions);
 }
 
 $stmt_total = mysqli_prepare($conn, $sql_total);
+if (!$stmt_total) {
+    die(json_encode(["error" => "Prepare failed: " . mysqli_error($conn) . " SQL: " . $sql_total]));
+}
 if (!empty($params)) {
     mysqli_stmt_bind_param($stmt_total, $types, ...$params);
 }
@@ -56,19 +58,18 @@ $recordsFiltered = $recordsTotal;
 // 3. Build the main query with LIMIT for pagination
 
 $sql = "SELECT
-            inventory_items.*,
-            inventory_categories.name AS category_name,
-            inventory_types.name AS type_name
-        FROM inventory_items
-        LEFT JOIN inventory_categories ON inventory_items.category_id = inventory_categories.id
-        LEFT JOIN inventory_types ON inventory_items.type_id = inventory_types.id
-        WHERE inventory_items.status = 1";
+            DigiInventoryItems.*,
+            DigiInventoryCategories.FullName AS category_name,
+            DigiInventoryTypes.FullName AS type_name
+        FROM DigiInventoryItems
+        LEFT JOIN DigiInventoryCategories ON DigiInventoryItems.CategoryID = DigiInventoryCategories.CategoryID
+        LEFT JOIN DigiInventoryTypes ON DigiInventoryItems.TypeID = DigiInventoryTypes.TypeID WHERE DigiInventoryItems.status = 1";
 
 if (!empty($where_conditions)) {
     $sql .= " AND " . implode(" AND ", $where_conditions);
 }
 
-$sql .= " ORDER BY inventory_items.id DESC LIMIT ?, ?";
+$sql .= " ORDER BY DigiInventoryItems.ItemID DESC LIMIT ?, ?";
 
 $stmt = mysqli_prepare($conn, $sql);
 if (!$stmt) {
@@ -94,14 +95,12 @@ $count = $start + 1;
 while ($row = mysqli_fetch_assoc($result)) {
     $data[] = [
         "count"         => $count++,
-        "asset_code"    => '<span class="bebas-neue-bold">' . $row['asset_code'] . '</span>',
-        "name"          => $row['name'],
-        "category_name" => $row['category_name'] ?? 'N/A',
-        "type_name"     => $row['type_name'] ?? 'N/A',
-        "image" => '<img src="uploads/'.$row['image'].'" width="100" height="100" style="object-fit:contain;">',
+        "asset_code"    => '<span class="bebas-neue-bold">' . $row['Barcode'] . '</span>',
+        "name"          => $row['FullName'],
+        "image" => '<img src="'.$row['Picture'].'" width="100" height="100" style="object-fit:contain;">',
         "action" => '
-            <a href="items/view-items.php?id='.$row['id'].'" class="btn btn-sm btn-dark">View</a>
-            <a href="?item_del='.$row['id'].'" class="btn btn-sm btn-danger">Delete</a>
+            <a href="items/view-items.php?id='.$row['ItemID'].'" class="btn btn-sm btn-dark">View</a>
+            <a href="?item_del='.$row['ItemID'].'" class="btn btn-sm btn-danger">Delete</a>
         '
     ];
 }

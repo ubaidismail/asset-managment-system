@@ -8,139 +8,139 @@ $rows_type = Types::getAll();
 
 $rows_materials = Materials::getAll();
 
-$rows_size_units = SizeUnits::getAll();
+// $rows_size_units = SizeUnits::getAll();
 
-$rows_weight_unit = WeightUnits::getAll();
+// $rows_weight_unit = WeightUnits::getAll();
 
 $success_mess = '';
 $error_mess = '';
 
-function generate_asset_code($conn, $category_name, $cat_id)
-{
-    // 1. Create the prefix dynamically (e.g., 'FUR', 'LAP', 'OFF')
-    $prefix = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $category_name), 0, 3));
+// function generate_asset_code($conn, $category_name, $cat_id)
+// {
+//     // 1. Create the prefix dynamically (e.g., 'FUR', 'LAP', 'OFF')
+//     $prefix = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $category_name), 0, 3));
 
-    // 2. Create the SEARCH PATTERN (e.g., 'EMS-FUR-%')
-    // The % is a SQL wildcard that means "anything after this"
-    $search_pattern = "EMS-" . $prefix . "-%";
+//     // 2. Create the SEARCH PATTERN (e.g., 'EMS-FUR-%')
+//     // The % is a SQL wildcard that means "anything after this"
+//     $search_pattern = "EMS-" . $prefix . "-%";
 
-    // 3. Use a Prepared Statement with the dynamic pattern
-    $stmt = $conn->prepare("SELECT asset_code FROM items WHERE asset_code LIKE ? ORDER BY asset_code DESC LIMIT 1");
-    $stmt->bind_param('s', $search_pattern);
-    $stmt->execute();
-    $result = $stmt->get_result()->fetch_assoc();
+//     // 3. Use a Prepared Statement with the dynamic pattern
+//     $stmt = $conn->prepare("SELECT asset_code FROM items WHERE asset_code LIKE ? ORDER BY asset_code DESC LIMIT 1");
+//     $stmt->bind_param('s', $search_pattern);
+//     $stmt->execute();
+//     $result = $stmt->get_result()->fetch_assoc();
 
-    if ($result) {
-        // 4. If we found one, extract the number and increment
-        $last_number = (int)substr(trim($result['asset_code']), -4);
-        $next_number = $last_number + 1;
-    } else {
-        // 5. If it's a brand new category prefix, start at 1
-        $next_number = 1;
-    }
+//     if ($result) {
+//         // 4. If we found one, extract the number and increment
+//         $last_number = (int)substr(trim($result['asset_code']), -4);
+//         $next_number = $last_number + 1;
+//     } else {
+//         // 5. If it's a brand new category prefix, start at 1
+//         $next_number = 1;
+//     }
 
-    // 6. Final Assembly
-    $number = str_pad($next_number, 4, '0', STR_PAD_LEFT);
-    return 'EMS-' . $prefix . '-' . $number;
-}
-if (isset($_POST['item_submit'])) {
+//     // 6. Final Assembly
+//     $number = str_pad($next_number, 4, '0', STR_PAD_LEFT);
+//     return 'EMS-' . $prefix . '-' . $number;
+// }
+// if (isset($_POST['item_submit'])) {
 
-    $item_name = $_POST['item_name'];
-    $item_desc = $_POST['item_description'];
-    $cat_id = $_POST['cat_id'];
-    $type_id = $_POST['type_id'];
-    $item_serial_number = $_POST['item_serial_number'];
-    $item_brand = $_POST['item_brand'];
-    $item_model = $_POST['item_model'];
-    // $item_purchase_price = $_POST['item_purchase_price'];
-    $material_id = $_POST['item_material'];
-    $item_color = $_POST['item_color'];
-    $size_width = $_POST['size_width'];
-    $size_height = $_POST['size_height'];
-    $size_depth = $_POST['size_depth'];
-    $size_unit = $_POST['size_unit_id'];
-    $item_weight = $_POST['item_weight'];
-    $weight_unit = $_POST['weight_unit'];
-    $is_adjustable = $_POST['item_adjustable'];
-    $item_location = $_POST['item_location'];
-    $item_notes = $_POST['item_notes'];
-
-
-    $item_image = $_FILES['item_image']['name'];
-    $image_tmp = $_FILES['item_image']['tmp_name'];
-    $image_size = $_FILES['item_image']['size'];
-    $image_ext = pathinfo($item_image, PATHINFO_EXTENSION);
-
-    $image_name_unique = time() . '.' . $image_ext;
-    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/AMS/uploads/';
-    $upload_path = $upload_dir . $image_name_unique;
-
-    // Get category name for asset code generation
-    $category_name = '';
-    foreach ($rows_cat as $cat) {
-        if ($cat['id'] == $cat_id) {
-            $category_name = $cat['name'];
-            break;
-        }
-    }
-
-    $asset_code = generate_asset_code($conn, $category_name, $cat_id);
+//     $item_name = $_POST['item_name'];
+//     $item_desc = $_POST['item_description'];
+//     $cat_id = $_POST['cat_id'];
+//     $type_id = $_POST['type_id'];
+//     $item_serial_number = $_POST['item_serial_number'];
+//     $item_brand = $_POST['item_brand'];
+//     $item_model = $_POST['item_model'];
+//     // $item_purchase_price = $_POST['item_purchase_price'];
+//     $material_id = $_POST['item_material'];
+//     $item_color = $_POST['item_color'];
+//     $size_width = $_POST['size_width'];
+//     $size_height = $_POST['size_height'];
+//     $size_depth = $_POST['size_depth'];
+//     $size_unit = $_POST['size_unit_id'];
+//     $item_weight = $_POST['item_weight'];
+//     $weight_unit = $_POST['weight_unit'];
+//     $is_adjustable = $_POST['item_adjustable'];
+//     $item_location = $_POST['item_location'];
+//     $item_notes = $_POST['item_notes'];
 
 
-    if (!file_exists($upload_dir)) {
-        mkdir($upload_dir, 0777, true);
-    }
-    move_uploaded_file($image_tmp, $upload_path);
+//     $item_image = $_FILES['item_image']['name'];
+//     $image_tmp = $_FILES['item_image']['tmp_name'];
+//     $image_size = $_FILES['item_image']['size'];
+//     $image_ext = pathinfo($item_image, PATHINFO_EXTENSION);
 
-    try {
-        $sql = 'INSERT INTO inventory_items 
-            (name, item_description, type_id, category_id, serial_number, brand, model,
-            material_id, color, size_width, size_height, size_depth, size_unit,
-            item_weight, weight_unit, is_adjustable,
-            item_location, notes, image,asset_code) 
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'; //21
+//     $image_name_unique = time() . '.' . $image_ext;
+//     $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/AMS/uploads/';
+//     $upload_path = $upload_dir . $image_name_unique;
 
-        $insert_query = $conn->prepare($sql);
+//     // Get category name for asset code generation
+//     $category_name = '';
+//     foreach ($rows_cat as $cat) {
+//         if ($cat['id'] == $cat_id) {
+//             $category_name = $cat['name'];
+//             break;
+//         }
+//     }
 
-        if (!$insert_query) {
-            die('Prepare failed: ' . $conn->error);
-        }
+//     $asset_code = generate_asset_code($conn, $category_name, $cat_id);
 
-        $insert_query->bind_param(
-            'ssiisssisdddidiissss',
-            $item_name,
-            $item_desc,
-            $type_id,
-            $cat_id,
-            $item_serial_number,
-            $item_brand,
-            $item_model,
-            // $item_purchase_price, // d
-            $material_id,
-            $item_color,
-            $size_width,          // d
-            $size_height,         // d
-            $size_depth,          // d
-            $size_unit,
-            $item_weight,         // d
-            $weight_unit,
-            $is_adjustable,
-            $item_location,
-            $item_notes,
-            $image_name_unique,
-            $asset_code
-        );
 
-        if ($insert_query->execute()) {
-            header('Location: /AMS/index.php');
-            exit();
-        } else {
-            $error_mess = 'Error:' . $insert_query->error;
-        }
-    } catch (\Throwable $th) {
-        $error_mess = 'Error:' . $th->getMessage();
-    }
-}
+//     if (!file_exists($upload_dir)) {
+//         mkdir($upload_dir, 0777, true);
+//     }
+//     move_uploaded_file($image_tmp, $upload_path);
+
+//     try {
+//         $sql = 'INSERT INTO inventory_items 
+//             (name, item_description, type_id, category_id, serial_number, brand, model,
+//             material_id, color, size_width, size_height, size_depth, size_unit,
+//             item_weight, weight_unit, is_adjustable,
+//             item_location, notes, image,asset_code) 
+//             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'; //21
+
+//         $insert_query = $conn->prepare($sql);
+
+//         if (!$insert_query) {
+//             die('Prepare failed: ' . $conn->error);
+//         }
+
+//         $insert_query->bind_param(
+//             'ssiisssisdddidiissss',
+//             $item_name,
+//             $item_desc,
+//             $type_id,
+//             $cat_id,
+//             $item_serial_number,
+//             $item_brand,
+//             $item_model,
+//             // $item_purchase_price, // d
+//             $material_id,
+//             $item_color,
+//             $size_width,          // d
+//             $size_height,         // d
+//             $size_depth,          // d
+//             $size_unit,
+//             $item_weight,         // d
+//             $weight_unit,
+//             $is_adjustable,
+//             $item_location,
+//             $item_notes,
+//             $image_name_unique,
+//             $asset_code
+//         );
+
+//         if ($insert_query->execute()) {
+//             header('Location: /AMS/index.php');
+//             exit();
+//         } else {
+//             $error_mess = 'Error:' . $insert_query->error;
+//         }
+//     } catch (\Throwable $th) {
+//         $error_mess = 'Error:' . $th->getMessage();
+//     }
+// }
 
 ?>
 
